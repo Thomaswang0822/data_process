@@ -27,7 +27,7 @@ pip install <PACKAGE_NAME>
 ### Installing
 
 * Basically, just clone the repo to each of 2 computers and everything is set.
-* Just make sure don't modify the file structure.
+* Just make sure don't modify the file structure or ANY folder name.
 
 ### Executing program
 
