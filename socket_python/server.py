@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 """
@@ -11,7 +11,7 @@
 print("Server starting......")
 
 
-# In[2]:
+# In[ ]:
 
 
 import socket
@@ -24,7 +24,7 @@ import easygui as eg
 # In[ ]:
 
 
-savepath = eg.diropenbox(title="Choose place to save file")
+savepath = eg.diropenbox(title="Choose place to save file", default=".")
 if not os.path.exists(savepath):
     os.mkdir(savepath)
 
@@ -39,32 +39,33 @@ class Server:
         
         # get host name
         self.host = socket.gethostname()
-        print(self.host)
-        
+
         # set prot
         self.port = 3636
         
+        # set ip
+        self.ip = socket.gethostbyname(socket.gethostname())
+        
         # bind address
-        self.server.bind( ("169.254.4.254", self.port) )
+        self.server.bind( ('192.168.249.133', self.port) )
         
         # set Max connection
         self.server.listen(12)
         print("Server online, waiting for client connection")
         
     def server100(self):
-        while 1:
-            # set client connection
-            client, addr = self.server.accept()
-            print(f'client: {str(addr)}, connected to the server')
-            msg = f'connected to host {self.host}. \r\n'
-            client.send(msg.encode('utf-8'))
-            
-            # Create a threading for client after connection
-            t1 = threading.Thread(self.taskfilethread(client))
-            # set threading guard
-            t1.setDaemon(True)
-            # start
-            t1.start()
+        # set client connection
+        client, addr = self.server.accept()
+        print(f'client: {str(addr)}, connected to the server')
+        msg = f'connected to host {self.host}. \r\n'
+        client.send(msg.encode('utf-8'))
+
+        # Create a threading for client after connection
+        t1 = threading.Thread(self.taskfilethread(client))
+        # set threading guard
+        t1.setDaemon(True)
+        # start
+        t1.start()
             
     def taskfilethread(self, client):
         # recv file name and size
@@ -79,6 +80,7 @@ class Server:
             f = open(savepath + "/" + filename, 'wb')
             size = 0
             start_t = time.time()
+            curr_t = time.time()
             while 1:
                 # recv data
                 f_data = client.recv(1024)
@@ -89,7 +91,10 @@ class Server:
                     if time.time() - start_t == 0:
                         time.sleep(0.5)
                     speed = size/(time.time() - start_t)
-                    print("Downloading: {}% complete, speed: {} MB/s". format(size/filesize*100, float(size/1024/1024)))
+                    if time.time() - curr_t >= 0.5:
+                        curr_t = time.time()
+                        print("Downlaoding: {}% complete, speed: {} MB/s". format(size/filesize*100, float(size/1024/1024)))
+                        
                 else:
                     break              
         except Exception as e:
@@ -103,8 +108,9 @@ class Server:
             
 if __name__ == '__main__':
     server = Server()
+    dummpy = eg.msgbox(msg=f"This is the ip address to enter in big_app. \n {server.ip}")
+    # confirm = input(f"This is the ip address to enter in big_app. \n {server.ip}")
     server.server100()
-    server.close()
 
 
 # In[ ]:

@@ -4,3 +4,6 @@
 raw_data/.DS_Store
 result/.DS_Store
 doc_Chinese.md
+/raw_data
+/result
+/processed
